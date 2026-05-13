@@ -44,8 +44,8 @@ COPY . .
 # Copy built frontend assets from node stage
 COPY --from=node-builder /app/public/build ./public/build
 
-# Install PHP dependencies (production only)
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# Install PHP dependencies (including dev for factory/seeder support)
+RUN composer install --optimize-autoloader --no-interaction
 
 # Set correct permissions
 RUN chown -R www-data:www-data /var/www/storage /var/www/bootstrap/cache \

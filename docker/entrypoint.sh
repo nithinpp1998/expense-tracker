@@ -11,19 +11,38 @@ if [ -z "$APP_KEY" ]; then
     php artisan key:generate --force
 fi
 
-# Wait for MySQL to be ready
+# Wait for MySQL using a direct PDO ping (no full Laravel bootstrap needed)
 echo "[+] Waiting for database connection..."
 RETRIES=30
-until php artisan db:show --no-interaction > /dev/null 2>&1 || [ $RETRIES -eq 0 ]; do
+until php -r "
+    try {
+        \$dsn = 'mysql:host=' . getenv('DB_HOST') . ';port=' . getenv('DB_PORT') . ';dbname=' . getenv('DB_DATABASE');
+        new PDO(\$dsn, getenv('DB_USERNAME'), getenv('DB_PASSWORD'));
+        exit(0);
+    } catch (Exception \$e) {
+        exit(1);
+    }
+" 2>/dev/null; do
     echo "    Database not ready — retrying in 2s... ($RETRIES attempts left)"
     RETRIES=$((RETRIES - 1))
+    if [ $RETRIES -eq 0 ]; then
+        echo "[!] Could not connect to database after multiple retries. Exiting."
+        exit 1
+    fi
     sleep 2
 done
 
-if [ $RETRIES -eq 0 ]; then
-    echo "[!] Could not connect to database after multiple retries. Exiting."
-    exit 1
-fi
+echo "[+] Database is ready."
+
+echo "[+] Clearing bootstrap cache (host may have dev-only package references)..."
+rm -f /var/www/bootstrap/cache/packages.php
+rm -f /var/www/bootstrap/cache/services.php
+rm -f /var/www/bootstrap/cache/config.php
+rm -f /var/www/bootstrap/cache/routes*.php
+rm -f /var/www/bootstrap/cache/events.php
+
+echo "[+] Regenerating package discovery cache (no dev dependencies)..."
+php artisan package:discover --ansi
 
 echo "[+] Running migrations..."
 php artisan migrate --force --no-interaction
