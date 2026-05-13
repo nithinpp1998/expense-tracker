@@ -88,6 +88,17 @@ final class ExpenseRepository implements ExpenseRepositoryInterface
             ->get();
     }
 
+    public function totalsByCategoryForRange(int $userId, string $from, string $to): Collection
+    {
+        return $this->model->newQuery()
+            ->where('user_id', $userId)
+            ->whereBetween('occurred_at', ["{$from} 00:00:00", "{$to} 23:59:59"])
+            ->selectRaw('category_id, SUM(amount) as total')
+            ->groupBy('category_id')
+            ->with('category')
+            ->get();
+    }
+
     public function allForUser(int $userId, array $filters): Collection
     {
         return $this->model->newQuery()
@@ -100,4 +111,5 @@ final class ExpenseRepository implements ExpenseRepositoryInterface
             ->latest('created_at')
             ->get();
     }
+
 }

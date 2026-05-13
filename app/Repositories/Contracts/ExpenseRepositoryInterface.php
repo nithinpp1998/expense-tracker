@@ -28,4 +28,7 @@ interface ExpenseRepositoryInterface
     public function lifetimeTotalsByCategory(int $userId): Collection;
 
     public function allForUser(int $userId, array $filters): Collection;
+
+    /** Per-category SUM(amount) for any date range (YYYY-MM-DD strings). */
+    public function totalsByCategoryForRange(int $userId, string $from, string $to): Collection;
 }

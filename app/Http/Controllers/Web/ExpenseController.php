@@ -11,7 +11,9 @@ use App\Http\Requests\Expense\UpdateExpenseRequest;
 use App\Repositories\Contracts\CategoryRepositoryInterface;
 use App\Repositories\Contracts\ExpenseRepositoryInterface;
 use App\Services\ExpenseReportService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Response as HttpResponse;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Illuminate\View\View;
 
@@ -58,7 +60,7 @@ final class ExpenseController extends Controller
 
     public function edit(string $id): View
     {
-        $expense = $this->expenses->findForUser(auth()->id(), $id);
+        $expense = $this->expenses->findForUser(auth()->id(), (int) $id);
         abort_unless($expense !== null, 404);
         $this->authorize('update', $expense);
 
@@ -69,7 +71,7 @@ final class ExpenseController extends Controller
 
     public function update(UpdateExpenseRequest $request, string $id): RedirectResponse
     {
-        $expense = $this->expenses->findForUser($request->user()->id, $id);
+        $expense = $this->expenses->findForUser($request->user()->id, (int) $id);
         abort_unless($expense !== null, 404);
         $this->authorize('update', $expense);
 
@@ -77,6 +79,39 @@ final class ExpenseController extends Controller
         $this->reports->bustCacheForUser($request->user()->id);
 
         return redirect()->route('expenses.index')->with('success', 'Expense updated successfully.');
+    }
+
+    public function exportPdf(IndexExpenseRequest $request): HttpResponse
+    {
+        $expenses = $this->expenses->allForUser(
+            userId: $request->user()->id,
+            filters: $request->validated(),
+        );
+
+        $validated = $request->validated();
+
+        $categoryName = null;
+        if (! empty($validated['category_id'])) {
+            $cat = $this->categories->find((int) $validated['category_id']);
+            $categoryName = $cat?->name;
+        }
+
+        $filters = [
+            'search'   => $validated['search'] ?? null,
+            'category' => $categoryName,
+            'from'     => $validated['from'] ?? null,
+            'to'       => $validated['to'] ?? null,
+        ];
+
+        $pdf = Pdf::loadView('expenses.pdf', [
+            'expenses' => $expenses,
+            'user'     => $request->user(),
+            'filters'  => $filters,
+        ])->setPaper('a4', 'portrait');
+
+        $filename = 'expenses-' . now()->format('Y-m-d') . '.pdf';
+
+        return $pdf->download($filename);
     }
 
     public function export(IndexExpenseRequest $request): StreamedResponse
@@ -112,7 +147,7 @@ final class ExpenseController extends Controller
 
     public function destroy(string $id): RedirectResponse
     {
-        $expense = $this->expenses->findForUser(auth()->id(), $id);
+        $expense = $this->expenses->findForUser(auth()->id(), (int) $id);
         abort_unless($expense !== null, 404);
         $this->authorize('delete', $expense);
 

@@ -49,7 +49,7 @@ final class ExpenseController extends Controller
 
     public function show(string $id): ExpenseResource
     {
-        $expense = $this->expenses->findForUser(auth()->id(), $id);
+        $expense = $this->expenses->findForUser(auth()->id(), (int) $id);
 
         abort_unless($expense !== null, 404);
         $this->authorize('view', $expense);
@@ -59,7 +59,7 @@ final class ExpenseController extends Controller
 
     public function update(UpdateExpenseRequest $request, string $id): ExpenseResource
     {
-        $expense = $this->expenses->findForUser($request->user()->id, $id);
+        $expense = $this->expenses->findForUser($request->user()->id, (int) $id);
 
         abort_unless($expense !== null, 404);
         $this->authorize('update', $expense);
@@ -72,7 +72,7 @@ final class ExpenseController extends Controller
 
     public function destroy(string $id): JsonResponse
     {
-        $expense = $this->expenses->findForUser(auth()->id(), $id);
+        $expense = $this->expenses->findForUser(auth()->id(), (int) $id);
 
         abort_unless($expense !== null, 404);
         $this->authorize('delete', $expense);

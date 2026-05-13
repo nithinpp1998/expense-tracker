@@ -1,23 +1,117 @@
 <x-app-layout>
     <x-slot name="title">Dashboard</x-slot>
-    <x-slot name="subtitle">{{ now()->format('F Y') }} overview</x-slot>
+    <x-slot name="subtitle">
+        @if ($fromStr === now()->startOfMonth()->toDateString() && $toStr === now()->toDateString())
+            {{ now()->format('F Y') }} overview
+        @else
+            {{ \Carbon\Carbon::parse($fromStr)->format('M j, Y') }}
+            @if ($fromStr !== $toStr)
+                — {{ \Carbon\Carbon::parse($toStr)->format('M j, Y') }}
+            @endif
+        @endif
+    </x-slot>
+
+    {{-- ── Date-range filter ───────────────────────────────────────────── --}}
+    @php
+        $today  = now();
+        $lastMo = $today->copy()->subMonthNoOverflow();
+        $presets = [
+            'This Month' => [$today->copy()->startOfMonth()->toDateString(), $today->toDateString()],
+            'Last Month'  => [$lastMo->copy()->startOfMonth()->toDateString(), $lastMo->copy()->endOfMonth()->toDateString()],
+            'Last 30 d'   => [$today->copy()->subDays(29)->toDateString(), $today->toDateString()],
+            'Last 90 d'   => [$today->copy()->subDays(89)->toDateString(), $today->toDateString()],
+            'This Year'   => [$today->copy()->startOfYear()->toDateString(), $today->toDateString()],
+        ];
+    @endphp
+
+    <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:14px 20px; margin-bottom:20px;">
+        <form method="GET" action="{{ route('dashboard') }}">
+            <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end;">
+
+                {{-- From --}}
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <label for="dash-from" style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.04em; text-transform:uppercase;">From</label>
+                    <input id="dash-from" type="date" name="from" value="{{ $fromStr }}"
+                           max="{{ now()->toDateString() }}"
+                           style="height:34px; padding:0 10px; background:#fff; border:1px solid #d1d5db; color:#111827; font-size:13px; border-radius:7px; outline:none; box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#6b7280'" onblur="this.style.borderColor='#d1d5db'">
+                </div>
+
+                {{-- To --}}
+                <div style="display:flex; flex-direction:column; gap:4px;">
+                    <label for="dash-to" style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.04em; text-transform:uppercase;">To</label>
+                    <input id="dash-to" type="date" name="to" value="{{ $toStr }}"
+                           max="{{ now()->toDateString() }}"
+                           style="height:34px; padding:0 10px; background:#fff; border:1px solid #d1d5db; color:#111827; font-size:13px; border-radius:7px; outline:none; box-sizing:border-box;"
+                           onfocus="this.style.borderColor='#6b7280'" onblur="this.style.borderColor='#d1d5db'">
+                </div>
+
+                {{-- Apply --}}
+                <button type="submit"
+                        style="height:34px; padding:0 16px; background:#111827; color:#fff; font-size:13px; font-weight:500; border-radius:7px; border:none; cursor:pointer; transition:background 150ms; white-space:nowrap; align-self:flex-end;"
+                        onmouseover="this.style.background='#374151'" onmouseout="this.style.background='#111827'">
+                    Apply
+                </button>
+
+                {{-- Separator --}}
+                <div style="width:1px; height:34px; background:#e5e7eb; align-self:flex-end; margin:0 2px;"></div>
+
+                {{-- Preset chips --}}
+                <div style="display:flex; gap:6px; align-items:flex-end; flex-wrap:wrap;">
+                    @foreach ($presets as $label => [$pFrom, $pTo])
+                        @php $active = ($fromStr === $pFrom && $toStr === $pTo); @endphp
+                        <a href="{{ route('dashboard', ['from' => $pFrom, 'to' => $pTo]) }}"
+                           style="height:34px; padding:0 13px; display:inline-flex; align-items:center; border-radius:7px; font-size:12px; font-weight:500; text-decoration:none; white-space:nowrap; transition:all 120ms;
+                                  border:1px solid {{ $active ? '#111827' : '#e5e7eb' }};
+                                  background:{{ $active ? '#111827' : '#ffffff' }};
+                                  color:{{ $active ? '#ffffff' : '#374151' }};"
+                           @unless($active)
+                               onmouseover="this.style.background='#f3f4f6'"
+                               onmouseout="this.style.background='#ffffff'"
+                           @endunless>
+                            {{ $label }}
+                        </a>
+                    @endforeach
+                </div>
+
+            </div>
+        </form>
+    </div>
 
     {{-- ── Stats row ────────────────────────────────────────────────────── --}}
     <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
+
+        {{-- Period total --}}
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
-            <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">This Month</p>
-            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">${{ number_format($monthTotal, 2) }}</p>
-            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $monthly->count() }} categories active</p>
+            <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">
+                @if ($days === 1) Today @elseif ($days <= 31) This Period @else Total Spend @endif
+            </p>
+            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
+                ${{ number_format($monthTotal, 2) }}
+            </p>
+            <p style="font-size:13px; color:#9ca3af; margin:0;">
+                {{ $monthly->count() }} {{ Str::plural('category', $monthly->count()) }}
+            </p>
         </div>
+
+        {{-- Daily average --}}
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">Daily Average</p>
-            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">${{ number_format($average, 2) }}</p>
-            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $now->format('F Y') }}</p>
+            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
+                ${{ number_format($average, 2) }}
+            </p>
+            <p style="font-size:13px; color:#9ca3af; margin:0;">
+                over {{ $days }} {{ Str::plural('day', $days) }}
+            </p>
         </div>
+
+        {{-- All time --}}
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">All Time</p>
-            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">${{ number_format($lifetime->sum(fn($r) => (float)$r->total), 2) }}</p>
-            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $lifetime->count() }} categories</p>
+            <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
+                ${{ number_format($lifetime->sum(fn($r) => (float)$r->total), 2) }}
+            </p>
+            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $lifetime->count() }} {{ Str::plural('category', $lifetime->count()) }}</p>
         </div>
     </div>
 
@@ -26,10 +120,19 @@
 
         {{-- Donut chart --}}
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
-            <h2 style="font-size:14px; font-weight:600; color:#111827; margin:0 0 16px;">Spending by Category — {{ $now->format('F') }}</h2>
+            <h2 style="font-size:14px; font-weight:600; color:#111827; margin:0 0 16px;">
+                Spending by Category
+                <span style="font-size:12px; font-weight:400; color:#9ca3af; margin-left:6px;">
+                    @if ($fromStr === $toStr)
+                        {{ \Carbon\Carbon::parse($fromStr)->format('M j') }}
+                    @else
+                        {{ \Carbon\Carbon::parse($fromStr)->format('M j') }} – {{ \Carbon\Carbon::parse($toStr)->format('M j') }}
+                    @endif
+                </span>
+            </h2>
             @if ($monthly->isEmpty())
                 <div style="display:flex; align-items:center; justify-content:center; height:192px; font-size:13px; color:#9ca3af;">
-                    No expenses recorded this month yet.
+                    No expenses for this period.
                 </div>
             @else
                 <div style="position:relative; display:flex; align-items:center; justify-content:center; height:192px;">
@@ -60,9 +163,9 @@
 
         {{-- Top categories --}}
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
-            <h2 style="font-size:14px; font-weight:600; color:#111827; margin:0 0 16px;">Top Categories This Month</h2>
+            <h2 style="font-size:14px; font-weight:600; color:#111827; margin:0 0 16px;">Top Categories</h2>
             @if ($monthly->isEmpty())
-                <p style="font-size:13px; color:#9ca3af;">No data yet.</p>
+                <p style="font-size:13px; color:#9ca3af;">No data for this period.</p>
             @else
                 @php $topCats = $monthly->sortByDesc('total')->take(5); $catMax = (float)$topCats->first()?->total ?: 1; @endphp
                 <div style="display:flex; flex-direction:column; gap:14px;">
@@ -125,8 +228,10 @@
                         @foreach ($recent as $expense)
                         <tr style="border-bottom:1px solid #f3f4f6; transition:background 120ms;"
                             onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''">
-                            <td style="padding:13px 12px 13px 20px; vertical-align:middle; font-size:14px; font-weight:600; color:#111827; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
-                                {{ $expense->description }}
+                            <td style="padding:13px 12px 13px 20px; vertical-align:middle; max-width:220px;">
+                                <span style="font-size:14px; font-weight:600; color:#111827; display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">
+                                    {{ $expense->description }}
+                                </span>
                             </td>
                             <td style="padding:13px 12px; vertical-align:middle;">
                                 @if ($expense->category)

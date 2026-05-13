@@ -78,6 +78,16 @@
                 <p style="font-size:13px; color:#6b7280; margin:2px 0 0;">{{ $expenses->total() }} total records</p>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
+                {{-- Export PDF (carries current filters) --}}
+                <a href="{{ route('expenses.export-pdf', request()->only(['search','category_id','from','to'])) }}"
+                   style="display:inline-flex; align-items:center; gap:6px; background:#ffffff; border:1px solid #d1d5db; color:#374151; font-size:12px; font-weight:500; padding:7px 14px; border-radius:7px; text-decoration:none; transition:background 150ms;"
+                   onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='#ffffff'">
+                    <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    Export PDF
+                </a>
+
                 {{-- Export CSV (carries current filters) --}}
                 <a href="{{ route('expenses.export', request()->only(['search','category_id','from','to'])) }}"
                    style="display:inline-flex; align-items:center; gap:6px; background:#ffffff; border:1px solid #d1d5db; color:#374151; font-size:12px; font-weight:500; padding:7px 14px; border-radius:7px; text-decoration:none; transition:background 150ms;"
@@ -143,8 +153,7 @@
                         {{-- Category --}}
                         <td style="padding:13px 12px; vertical-align:middle;">
                             @if ($expense->category)
-                                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 9px; border-radius:20px;"
-                                      style2="background-color:{{ $expense->category->color }}18; color:{{ $expense->category->color }}; border:1px solid {{ $expense->category->color }}30;">
+                                <span style="display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:500; padding:3px 9px; border-radius:20px; background-color:{{ $expense->category->color }}18; color:{{ $expense->category->color }}; border:1px solid {{ $expense->category->color }}30;">
                                     <span style="width:7px; height:7px; border-radius:50%; flex-shrink:0; display:inline-block; background:{{ $expense->category->color }};"></span>
                                     <span style="color:#374151;">{{ $expense->category->name }}</span>
                                 </span>
@@ -182,7 +191,7 @@
 
                                 <div id="exp-{{ $expense->id }}"
                                      class="row-menu"
-                                     style="display:none; position:absolute; right:0; top:calc(100% + 4px); z-index:40; min-width:140px; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+                                     style="display:none; position:fixed; right:0; top:0; z-index:200; min-width:140px; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; box-shadow:0 8px 24px rgba(0,0,0,0.12);">
 
                                     <a href="{{ route('expenses.edit', $expense) }}"
                                        style="display:flex; align-items:center; gap:8px; padding:7px 10px; border-radius:5px; font-size:13px; color:#374151; text-decoration:none; transition:background 100ms;"
@@ -272,16 +281,48 @@
     </div>
 
     <script>
+        // ── Row action dropdowns (position:fixed — escapes overflow clipping) ──
         function toggleRowMenu(e, id) {
             e.stopPropagation();
-            const menu   = document.getElementById(id);
-            const isOpen = menu.style.display !== 'none';
-            document.querySelectorAll('.row-menu').forEach(m => { m.style.display = 'none'; });
-            if (!isOpen) { menu.style.display = 'block'; }
+            var btn    = e.currentTarget;
+            var menu   = document.getElementById(id);
+            var isOpen = menu.style.display !== 'none';
+
+            // Close every open menu first
+            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
+
+            if (!isOpen) {
+                var rect = btn.getBoundingClientRect();
+
+                // Anchor below-right of the trigger button (fixed = viewport coords)
+                menu.style.top   = (rect.bottom + 4) + 'px';
+                menu.style.right = (window.innerWidth - rect.right) + 'px';
+                menu.style.left  = 'auto';
+                menu.style.display = 'block';
+
+                // If the menu overflows the bottom of the viewport, flip it upward
+                requestAnimationFrame(function () {
+                    var mh = menu.getBoundingClientRect();
+                    if (mh.bottom > window.innerHeight - 8) {
+                        menu.style.top = (rect.top - mh.height - 4) + 'px';
+                    }
+                    // If it overflows the left edge, pin to 8 px from left
+                    if (mh.left < 8) {
+                        menu.style.right = 'auto';
+                        menu.style.left  = '8px';
+                    }
+                });
+            }
         }
 
+        // Close on any outside click
         document.addEventListener('click', function () {
-            document.querySelectorAll('.row-menu').forEach(m => { m.style.display = 'none'; });
+            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
         });
+
+        // Close when the page scrolls so the menu doesn't drift from its button
+        window.addEventListener('scroll', function () {
+            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
+        }, { passive: true, capture: true });
     </script>
 </x-app-layout>

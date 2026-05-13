@@ -140,11 +140,18 @@
 
                                 <div id="cat-{{ $category->id }}"
                                      class="row-menu"
-                                     style="display:none; position:absolute; right:0; top:calc(100% + 4px); z-index:40; min-width:148px; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; box-shadow:0 4px 16px rgba(0,0,0,0.08);">
+                                     style="display:none; position:fixed; right:0; top:0; z-index:200; min-width:148px; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; box-shadow:0 8px 24px rgba(0,0,0,0.12);">
 
                                     {{-- Edit — opens modal --}}
                                     <button type="button"
-                                            onclick="openCatModal('edit', {{ $category->id }}, @json($category->name), @json($category->color), {{ $category->is_active ? 'true' : 'false' }}, {{ $category->is_system ? 'true' : 'false' }}, '{{ route('categories.update', $category) }}')"
+                                            class="row-edit-btn"
+                                            data-id="{{ $category->id }}"
+                                            data-name="{{ $category->name }}"
+                                            data-color="{{ $category->color }}"
+                                            data-active="{{ $category->is_active ? '1' : '0' }}"
+                                            data-system="{{ $category->is_system ? '1' : '0' }}"
+                                            data-url="{{ route('categories.update', $category) }}"
+                                            onclick="handleEditClick(event)"
                                             style="display:flex; align-items:center; gap:8px; width:100%; padding:7px 10px; border-radius:5px; font-size:13px; color:#374151; background:transparent; border:none; cursor:pointer; text-align:left; transition:background 100ms;"
                                             onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
                                         <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -528,17 +535,62 @@
             }
         }
 
-        // ── Row action dropdowns ───────────────────────────────────────
-        function toggleRowMenu(e, id) {
-            e.stopPropagation();
-            var menu   = document.getElementById(id);
-            var isOpen = menu.style.display !== 'none';
-            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
-            if (!isOpen) { menu.style.display = 'block'; }
+        // ── Edit button handler — reads data-* attrs to avoid quote-escaping issues ──
+        function handleEditClick(e) {
+            var btn = e.currentTarget;
+            openCatModal(
+                'edit',
+                btn.dataset.id,
+                btn.dataset.name,
+                btn.dataset.color,
+                btn.dataset.active === '1',
+                btn.dataset.system === '1',
+                btn.dataset.url
+            );
         }
 
+        // ── Row action dropdowns (position:fixed — escapes overflow clipping) ──
+        function toggleRowMenu(e, id) {
+            e.stopPropagation();
+            var btn    = e.currentTarget;
+            var menu   = document.getElementById(id);
+            var isOpen = menu.style.display !== 'none';
+
+            // Close every open menu first
+            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
+
+            if (!isOpen) {
+                var rect = btn.getBoundingClientRect();
+
+                // Anchor below-right of the trigger button (fixed = viewport coords)
+                menu.style.top   = (rect.bottom + 4) + 'px';
+                menu.style.right = (window.innerWidth - rect.right) + 'px';
+                menu.style.left  = 'auto';
+                menu.style.display = 'block';
+
+                // If the menu overflows the bottom of the viewport, flip it upward
+                requestAnimationFrame(function () {
+                    var mh = menu.getBoundingClientRect();
+                    if (mh.bottom > window.innerHeight - 8) {
+                        menu.style.top = (rect.top - mh.height - 4) + 'px';
+                    }
+                    // If it overflows the left edge, pin to 8 px from left
+                    if (mh.left < 8) {
+                        menu.style.right = 'auto';
+                        menu.style.left  = '8px';
+                    }
+                });
+            }
+        }
+
+        // Close on any outside click
         document.addEventListener('click', function () {
             document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
         });
+
+        // Close when the page scrolls so the menu doesn't drift from its button
+        window.addEventListener('scroll', function () {
+            document.querySelectorAll('.row-menu').forEach(function (m) { m.style.display = 'none'; });
+        }, { passive: true, capture: true });
     </script>
 </x-app-layout>
