@@ -23,7 +23,7 @@ final class ExpenseController extends Controller
 
     public function index(IndexExpenseRequest $request): AnonymousResourceCollection
     {
-        $perPage = min((int) $request->input('per_page', 15), 100);
+        $perPage = min((int) $request->input('per_page', config('constants.pagination.default_per_page')), config('constants.pagination.max_per_page'));
 
         $expenses = $this->expenses->paginateForUser(
             userId: $request->user()->id,

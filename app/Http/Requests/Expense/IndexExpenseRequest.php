@@ -17,10 +17,10 @@ final class IndexExpenseRequest extends FormRequest
     {
         return [
             'category_id' => ['nullable', 'integer', 'exists:categories,id'],
-            'from' => ['nullable', 'date'],
-            'to' => ['nullable', 'date', 'after_or_equal:from'],
-            'search' => ['nullable', 'string', 'max:200'],
-            'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'from'        => ['nullable', 'date'],
+            'to'          => ['nullable', 'date', 'after_or_equal:from'],
+            'search'      => ['nullable', 'string', 'max:'.config('constants.expense.search_max_length')],
+            'per_page'    => ['nullable', 'integer', 'min:1', 'max:'.config('constants.pagination.max_per_page')],
         ];
     }
 }

@@ -26,8 +26,8 @@ final class CategoryRepository implements CategoryRepositoryInterface
     public function paginate(int $perPage = 15): LengthAwarePaginator
     {
         return $this->model->newQuery()
-            ->orderByDesc('is_system')
-            ->orderBy('name')
+            ->withCount('expenses')
+            ->latest('created_at')
             ->paginate($perPage);
     }
 

@@ -23,7 +23,7 @@ final class ExpenseRepository implements ExpenseRepositoryInterface
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('occurred_at', '<=', $to))
             ->when($filters['search'] ?? null, fn ($q, $term) => $q->where('description', 'like', '%'.$term.'%')
             )
-            ->latest('occurred_at')
+            ->latest('created_at')
             ->paginate($perPage)
             ->withQueryString();
     }
@@ -97,7 +97,7 @@ final class ExpenseRepository implements ExpenseRepositoryInterface
             ->when($filters['from'] ?? null, fn ($q, $from) => $q->where('occurred_at', '>=', $from))
             ->when($filters['to'] ?? null, fn ($q, $to) => $q->where('occurred_at', '<=', $to))
             ->when($filters['search'] ?? null, fn ($q, $term) => $q->where('description', 'like', '%'.$term.'%'))
-            ->latest('occurred_at')
+            ->latest('created_at')
             ->get();
     }
 }

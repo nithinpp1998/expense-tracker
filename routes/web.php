@@ -19,7 +19,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
         ->except(['show']);
 
     Route::resource('categories', CategoryController::class)
-        ->except(['show']);
+        ->except(['show', 'create', 'edit']);
     Route::patch('categories/{category}/toggle', [CategoryController::class, 'toggle'])
         ->name('categories.toggle');
 

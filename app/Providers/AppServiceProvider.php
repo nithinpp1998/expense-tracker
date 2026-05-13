@@ -35,11 +35,23 @@ class AppServiceProvider extends ServiceProvider
         Model::preventLazyLoading(! $this->app->isProduction());
 
         RateLimiter::for('api', function (Request $request) {
-            return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
+            return Limit::perMinute(config('constants.rate_limits.api_per_minute'))
+                ->by($request->user()?->id ?: $request->ip());
         });
 
         RateLimiter::for('login', function (Request $request) {
-            return Limit::perMinute(5)->by($request->ip());
+            return Limit::perMinute(config('constants.rate_limits.login_per_minute'))
+                ->by($request->ip());
+        });
+
+        RateLimiter::for('reports', function (Request $request) {
+            return Limit::perMinute(config('constants.rate_limits.reports_per_minute'))
+                ->by($request->user()?->id ?: $request->ip());
+        });
+
+        RateLimiter::for('email-verify', function (Request $request) {
+            return Limit::perMinute(config('constants.rate_limits.email_verify_per_minute'))
+                ->by($request->user()?->id ?: $request->ip());
         });
     }
 }

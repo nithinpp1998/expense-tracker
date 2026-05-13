@@ -16,11 +16,11 @@ final class UpdateExpenseRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'amount' => ['sometimes', 'numeric', 'min:0.01', 'max:99999999.99'],
-            'description' => ['sometimes', 'string', 'max:500'],
+            'amount'      => ['sometimes', 'numeric', 'min:'.config('constants.expense.amount_min'), 'max:'.config('constants.expense.amount_max')],
+            'description' => ['sometimes', 'string', 'max:'.config('constants.expense.description_max_length')],
             'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
             'occurred_at' => ['sometimes', 'date', 'before_or_equal:now'],
-            'currency' => ['sometimes', 'string', 'size:3'],
+            'currency'    => ['sometimes', 'string', 'size:'.config('constants.currency.code_length')],
         ];
     }
 }

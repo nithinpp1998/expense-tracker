@@ -16,7 +16,7 @@ final class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'name' => ['sometimes', 'required', 'string', 'max:100'],
+            'name' => ['sometimes', 'required', 'string', 'max:'.config('constants.category.name_max_length')],
 
             'color'     => ['sometimes', 'nullable', 'string', 'regex:/^#[0-9a-fA-F]{6}$/'],
 

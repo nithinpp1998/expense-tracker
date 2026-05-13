@@ -10,6 +10,7 @@ use Illuminate\Support\Collection;
 
 interface ExpenseRepositoryInterface
 {
+    /** @see config('constants.pagination.default_per_page') — controllers must always pass this value explicitly */
     public function paginateForUser(int $userId, array $filters, int $perPage = 15): LengthAwarePaginator;
 
     public function findForUser(int $userId, int $expenseId): ?Expense;

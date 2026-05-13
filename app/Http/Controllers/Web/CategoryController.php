@@ -21,17 +21,10 @@ final class CategoryController extends Controller
     {
         $this->authorize('viewAny', Category::class);
 
-        $perPage = min((int) request()->input('per_page', 10), 100);
+        $perPage = min((int) request()->input('per_page', config('constants.pagination.default_per_page')), config('constants.pagination.max_per_page'));
         $categories = $this->categories->paginate($perPage);
 
         return view('categories.index', compact('categories'));
-    }
-
-    public function create(): View
-    {
-        $this->authorize('create', Category::class);
-
-        return view('categories.create');
     }
 
     public function store(StoreCategoryRequest $request): RedirectResponse
@@ -39,8 +32,8 @@ final class CategoryController extends Controller
         $this->authorize('create', Category::class);
 
         $validated = $request->validated();
-        $validated['slug'] = $this->uniqueSlug(Str::slug($validated['name']));
-        $validated['color']     = $validated['color'] ?? '#6b7280';
+        $validated['slug']      = $this->uniqueSlug(Str::slug($validated['name']));
+        $validated['color']     = $validated['color'] ?? config('constants.category.default_color');
         $validated['is_active'] = (bool) ($validated['is_active'] ?? true);
         $validated['is_system'] = false;
 
@@ -49,18 +42,9 @@ final class CategoryController extends Controller
         return redirect()->route('categories.index')->with('success', 'Category created successfully.');
     }
 
-    public function edit(string $id): View
-    {
-        $category = $this->categories->find($id);
-        abort_unless($category !== null, 404);
-        $this->authorize('update', $category);
-
-        return view('categories.edit', compact('category'));
-    }
-
     public function update(UpdateCategoryRequest $request, string $id): RedirectResponse
     {
-        $category = $this->categories->find($id);
+        $category = $this->categories->find((int) $id);
         abort_unless($category !== null, 404);
         $this->authorize('update', $category);
 
@@ -80,9 +64,16 @@ final class CategoryController extends Controller
 
     public function destroy(string $id): RedirectResponse
     {
-        $category = $this->categories->find($id);
+        $category = $this->categories->find((int) $id);
         abort_unless($category !== null, 404);
         $this->authorize('delete', $category);
+
+        $category->loadCount('expenses');
+
+        if ($category->expenses_count > 0) {
+            return redirect()->route('categories.index')
+                ->with('error', "Cannot delete \"{$category->name}\" — it is used by {$category->expenses_count} expense(s). Deactivate it instead.");
+        }
 
         $this->categories->delete($category);
 
@@ -91,21 +82,21 @@ final class CategoryController extends Controller
 
     public function toggle(string $id): RedirectResponse
     {
-        $category = $this->categories->find($id);
+        $category = $this->categories->find((int) $id);
         abort_unless($category !== null, 404);
         $this->authorize('toggleActive', $category);
 
+        $wasActive = $category->is_active;
         $this->categories->toggleActive($category);
-
-        $status = $category->is_active ? 'deactivated' : 'activated';
+        $status = $wasActive ? 'deactivated' : 'activated';
 
         return redirect()->route('categories.index')->with('success', "Category {$status}.");
     }
 
-    private function uniqueSlug(string $base, ?string $excludeId = null): string
+    private function uniqueSlug(string $base, ?int $excludeId = null): string
     {
         $slug = $base;
-        $i = 1;
+        $i    = 1;
 
         while ($this->categories->existsBySlug($slug, $excludeId)) {
             $slug = $base.'-'.$i++;

@@ -131,7 +131,7 @@
                     @foreach ($expenses as $expense)
                     <tr style="border-bottom:1px solid #f3f4f6; transition:background 120ms;"
                         onmouseover="this.style.background='#f9fafb'" onmouseout="this.style.background=''"
-                        x-data="{ menuOpen: false }">
+                        >
 
                         {{-- Description --}}
                         <td style="padding:13px 12px 13px 20px; vertical-align:middle; max-width:280px;">
@@ -170,7 +170,8 @@
                         {{-- Actions dropdown --}}
                         <td style="padding:13px 20px 13px 8px; vertical-align:middle; text-align:right; position:relative;">
                             <div style="position:relative; display:inline-block;">
-                                <button type="button" @click="menuOpen = !menuOpen" @click.outside="menuOpen = false"
+                                <button type="button"
+                                        onclick="toggleRowMenu(event,'exp-{{ $expense->id }}')"
                                         style="width:28px; height:28px; display:inline-flex; align-items:center; justify-content:center; border-radius:6px; border:none; background:transparent; color:#9ca3af; cursor:pointer; transition:all 120ms;"
                                         onmouseover="this.style.background='#f3f4f6'; this.style.color='#374151'"
                                         onmouseout="this.style.background='transparent'; this.style.color='#9ca3af'">
@@ -179,13 +180,8 @@
                                     </svg>
                                 </button>
 
-                                <div x-show="menuOpen"
-                                     x-transition:enter="transition ease-out duration-100"
-                                     x-transition:enter-start="opacity-0 scale-95"
-                                     x-transition:enter-end="opacity-100 scale-100"
-                                     x-transition:leave="transition ease-in duration-75"
-                                     x-transition:leave-start="opacity-100 scale-100"
-                                     x-transition:leave-end="opacity-0 scale-95"
+                                <div id="exp-{{ $expense->id }}"
+                                     class="row-menu"
                                      style="display:none; position:absolute; right:0; top:calc(100% + 4px); z-index:40; min-width:140px; background:#ffffff; border:1px solid #e5e7eb; border-radius:8px; padding:4px; box-shadow:0 4px 16px rgba(0,0,0,0.08);">
 
                                     <a href="{{ route('expenses.edit', $expense) }}"
@@ -197,11 +193,11 @@
 
                                     <div style="height:1px; background:#f3f4f6; margin:4px 0;"></div>
 
-                                    <form method="POST" action="{{ route('expenses.destroy', $expense) }}" style="margin:0;"
-                                          x-data x-on:submit.prevent="if(confirm('Delete this expense?')) $el.submit()">
+                                    <form method="POST" action="{{ route('expenses.destroy', $expense) }}" style="margin:0;">
                                         @csrf
                                         @method('DELETE')
                                         <button type="submit"
+                                                onclick="return confirm('Delete this expense? This cannot be undone.')"
                                                 style="display:flex; align-items:center; gap:8px; width:100%; padding:7px 10px; border-radius:5px; font-size:13px; color:#dc2626; background:transparent; border:none; cursor:pointer; text-align:left; transition:background 100ms;"
                                                 onmouseover="this.style.background='rgba(239,68,68,0.06)'" onmouseout="this.style.background='transparent'">
                                             <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
@@ -274,4 +270,18 @@
 
         @endif
     </div>
+
+    <script>
+        function toggleRowMenu(e, id) {
+            e.stopPropagation();
+            const menu   = document.getElementById(id);
+            const isOpen = menu.style.display !== 'none';
+            document.querySelectorAll('.row-menu').forEach(m => { m.style.display = 'none'; });
+            if (!isOpen) { menu.style.display = 'block'; }
+        }
+
+        document.addEventListener('click', function () {
+            document.querySelectorAll('.row-menu').forEach(m => { m.style.display = 'none'; });
+        });
+    </script>
 </x-app-layout>

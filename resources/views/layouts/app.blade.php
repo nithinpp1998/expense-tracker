@@ -116,27 +116,185 @@
 
         {{-- Page content --}}
         <div class="flex-1 p-4 md:p-8 pt-18 md:pt-8">
-            @if (session('success'))
-                <div class="mb-6 flex items-center gap-3 rounded-md border border-green-200 bg-green-50 px-4 py-3 text-sm text-green-800" role="alert">
-                    <svg class="w-4 h-4 text-green-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
-                    </svg>
-                    {{ session('success') }}
-                </div>
-            @endif
-            @if (session('error'))
-                <div class="mb-6 flex items-center gap-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
-                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                    </svg>
-                    {{ session('error') }}
-                </div>
-            @endif
-
             {{ $slot }}
         </div>
     </main>
 </div>
+
+{{-- Toast notification container --}}
+<div id="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+<style>
+#toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+    width: 340px;
+    max-width: calc(100vw - 40px);
+}
+
+.toast {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 12px 14px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12), 0 1px 3px rgba(0,0,0,0.08);
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.45;
+    pointer-events: all;
+    border: 1px solid transparent;
+    opacity: 0;
+    transform: translateX(24px);
+    transition: opacity 0.22s ease, transform 0.22s ease;
+}
+
+.toast.toast-visible {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.toast.toast-hiding {
+    opacity: 0;
+    transform: translateX(24px);
+}
+
+.toast-success {
+    background: #f0fdf4;
+    border-color: #bbf7d0;
+    color: #166534;
+}
+
+.toast-error {
+    background: #fef2f2;
+    border-color: #fecaca;
+    color: #991b1b;
+}
+
+.toast-warning {
+    background: #fffbeb;
+    border-color: #fde68a;
+    color: #92400e;
+}
+
+.toast-info {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    color: #1e40af;
+}
+
+.toast-icon {
+    flex-shrink: 0;
+    width: 16px;
+    height: 16px;
+    margin-top: 1px;
+}
+
+.toast-success .toast-icon   { color: #16a34a; }
+.toast-error   .toast-icon   { color: #dc2626; }
+.toast-warning .toast-icon   { color: #d97706; }
+.toast-info    .toast-icon   { color: #2563eb; }
+
+.toast-body {
+    flex: 1;
+    min-width: 0;
+    word-break: break-word;
+}
+
+.toast-close {
+    flex-shrink: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    opacity: 0.5;
+    color: inherit;
+    transition: opacity 0.15s;
+    margin-top: 1px;
+}
+
+.toast-close:hover { opacity: 1; }
+</style>
+
+<script>
+(function () {
+    var icons = {
+        success: '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M5 13l4 4L19 7"/></svg>',
+        error:   '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>',
+        warning: '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/></svg>',
+        info:    '<svg class="toast-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>'
+    };
+
+    window.showToast = function (message, type) {
+        type = type || 'info';
+        var container = document.getElementById('toast-container');
+        if (!container) return;
+
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+        toast.setAttribute('role', 'alert');
+        toast.innerHTML =
+            (icons[type] || icons.info) +
+            '<span class="toast-body">' + escapeHtml(message) + '</span>' +
+            '<button class="toast-close" onclick="dismissToast(this.parentElement)" aria-label="Dismiss">' +
+                '<svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>' +
+            '</button>';
+
+        container.appendChild(toast);
+
+        // Trigger enter animation on next frame
+        requestAnimationFrame(function () {
+            requestAnimationFrame(function () {
+                toast.classList.add('toast-visible');
+            });
+        });
+
+        // Auto-dismiss after 3 s
+        var timer = setTimeout(function () { dismissToast(toast); }, 3000);
+        toast._dismissTimer = timer;
+    };
+
+    window.dismissToast = function (toast) {
+        if (!toast || toast._dismissed) return;
+        toast._dismissed = true;
+        clearTimeout(toast._dismissTimer);
+        toast.classList.remove('toast-visible');
+        toast.classList.add('toast-hiding');
+        setTimeout(function () {
+            if (toast.parentElement) toast.parentElement.removeChild(toast);
+        }, 240);
+    };
+
+    function escapeHtml(str) {
+        var div = document.createElement('div');
+        div.appendChild(document.createTextNode(str));
+        return div.innerHTML;
+    }
+
+    // Fire flash messages from PHP session
+    document.addEventListener('DOMContentLoaded', function () {
+        @if (session('success'))
+            showToast(@json(session('success')), 'success');
+        @endif
+        @if (session('error'))
+            showToast(@json(session('error')), 'error');
+        @endif
+        @if (session('warning'))
+            showToast(@json(session('warning')), 'warning');
+        @endif
+        @if (session('info'))
+            showToast(@json(session('info')), 'info');
+        @endif
+    });
+}());
+</script>
 
 </body>
 </html>

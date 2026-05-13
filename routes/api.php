@@ -14,7 +14,7 @@ Route::prefix('v1')->name('api.v1.')->middleware(['auth:sanctum', 'throttle:api'
     Route::apiResource('expenses', ExpenseController::class);
     Route::apiResource('categories', CategoryController::class)->only(['index', 'show']);
 
-    Route::prefix('reports')->middleware('throttle:20,1')->group(function () {
+    Route::prefix('reports')->middleware('throttle:reports')->group(function () {
         Route::get('monthly-category', [ReportController::class, 'monthlyCategory'])
             ->name('reports.monthly-category');
         Route::get('monthly-average', [ReportController::class, 'monthlyAverage'])
