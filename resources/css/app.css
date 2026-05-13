@@ -1,0 +1,104 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --background:          0 0% 100%;
+        --foreground:          240 10% 3.9%;
+        --card:                0 0% 100%;
+        --card-foreground:     240 10% 3.9%;
+        --popover:             0 0% 100%;
+        --popover-foreground:  240 10% 3.9%;
+        --primary:             240 5.9% 10%;
+        --primary-foreground:  0 0% 98%;
+        --secondary:           240 4.8% 95.9%;
+        --secondary-foreground:240 5.9% 10%;
+        --muted:               240 4.8% 95.9%;
+        --muted-foreground:    240 3.8% 46.1%;
+        --accent:              240 4.8% 95.9%;
+        --accent-foreground:   240 5.9% 10%;
+        --destructive:         0 84.2% 60.2%;
+        --destructive-foreground: 0 0% 98%;
+        --border:              240 5.9% 90%;
+        --input:               240 5.9% 90%;
+        --ring:                240 5.9% 10%;
+        --radius:              0.5rem;
+    }
+
+    * {
+        border-color: hsl(var(--border));
+    }
+
+    body {
+        @apply bg-background text-foreground font-sans antialiased;
+        font-size: 14px;
+        line-height: 1.5;
+        letter-spacing: -0.01em;
+        font-feature-settings: "kern" 1, "liga" 1, "calt" 1;
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold tracking-tight;
+        letter-spacing: -0.02em;
+    }
+}
+
+@layer components {
+    /* shadcn-style form inputs */
+    .input {
+        @apply flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+               placeholder:text-muted-foreground
+               focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+               disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    /* shadcn-style select */
+    .select {
+        @apply flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm
+               ring-offset-background
+               focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2
+               disabled:cursor-not-allowed disabled:opacity-50;
+    }
+
+    /* Card */
+    .card {
+        @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    }
+
+    /* Table */
+    .table-wrapper {
+        @apply relative w-full overflow-auto;
+    }
+
+    table.data-table {
+        @apply w-full caption-bottom text-sm;
+    }
+
+    table.data-table thead tr {
+        @apply border-b;
+    }
+
+    table.data-table thead th {
+        @apply h-11 px-4 text-left align-middle text-muted-foreground;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.02em;
+    }
+
+    table.data-table tbody tr {
+        @apply border-b transition-colors hover:bg-muted/50;
+    }
+
+    table.data-table tbody td {
+        @apply p-4 align-middle;
+    }
+
+    table.data-table tbody tr:last-child {
+        @apply border-b-0;
+    }
+}
+
+[x-cloak] { display: none !important; }

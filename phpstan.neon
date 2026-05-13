@@ -1,0 +1,29 @@
+includes:
+    - vendor/larastan/larastan/extension.neon
+
+parameters:
+    paths:
+        - app
+
+    level: 6
+
+    treatPhpDocTypesAsCertain: false
+
+    ignoreErrors:
+        # JsonResource accesses model properties via magic __get — expected Laravel pattern
+        - '#Access to an undefined property App\\Http\\Resources\\[A-Za-z]+::\$#'
+
+        # Missing generic type parameters on Collection / Relations — acceptable at level 6
+        - '#return type with generic class Illuminate\\Support\\Collection does not specify its types#'
+        - '#return type with generic class Illuminate\\Database\\Eloquent\\Relations\\#'
+        - '#return type with generic interface Illuminate\\Contracts\\Pagination\\LengthAwarePaginator#'
+
+        # Array return types in FormRequest rules() — Laravel convention
+        - '#return type has no value type specified in iterable type array#'
+        - '#parameter .+ with no value type specified in iterable type array#'
+
+        # Breeze-generated auth infrastructure — not authored by this project
+        - message: '##'
+          path: app/Http/Kernel.php
+        - message: '##'
+          path: app/Http/Controllers/Auth/VerifyEmailController.php
