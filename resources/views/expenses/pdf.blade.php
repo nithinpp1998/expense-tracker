@@ -197,7 +197,7 @@
                         @endif
                     </td>
                     <td class="right amount">
-                        ${{ number_format((float) $expense->amount, 2) }}
+                        ₹{{ number_format((float) $expense->amount, 2) }}
                     </td>
                 </tr>
                 @endforeach
@@ -206,7 +206,7 @@
                 <tr class="totals-row">
                     <td colspan="3" style="color:#374151; font-size:11px;">Total ({{ $expenses->count() }} expenses)</td>
                     <td class="right" style="color:#111827; font-size:13px;">
-                        ${{ number_format($expenses->sum(fn ($e) => (float) $e->amount), 2) }}
+                        ₹{{ number_format($expenses->sum(fn ($e) => (float) $e->amount), 2) }}
                     </td>
                 </tr>
             </tfoot>

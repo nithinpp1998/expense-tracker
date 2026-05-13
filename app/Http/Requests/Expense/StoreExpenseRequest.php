@@ -20,7 +20,6 @@ final class StoreExpenseRequest extends FormRequest
             'description' => ['required', 'string', 'max:'.config('constants.expense.description_max_length')],
             'category_id' => ['required', 'integer', 'exists:categories,id'],
             'occurred_at' => ['required', 'date', 'before_or_equal:now'],
-            'currency'    => ['nullable', 'string', 'size:'.config('constants.currency.code_length')],
         ];
     }
 }

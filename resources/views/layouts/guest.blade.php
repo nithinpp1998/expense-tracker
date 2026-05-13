@@ -23,20 +23,6 @@
             <blockquote class="text-zinc-300 text-xl font-light leading-relaxed mb-6">
                 "Take control of your finances with clear, simple expense tracking and insightful reports."
             </blockquote>
-            <div class="flex gap-6 text-zinc-500 text-sm">
-                <div>
-                    <div class="text-2xl font-bold text-white mb-1">12</div>
-                    <div>categories</div>
-                </div>
-                <div>
-                    <div class="text-2xl font-bold text-white mb-1">3</div>
-                    <div>report types</div>
-                </div>
-                <div>
-                    <div class="text-2xl font-bold text-white mb-1">REST</div>
-                    <div>API</div>
-                </div>
-            </div>
         </div>
         <p class="text-zinc-600 text-xs">© {{ date('Y') }} Expense Tracker. Built with Laravel.</p>
     </div>

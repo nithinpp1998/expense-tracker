@@ -19,7 +19,7 @@
             {{-- Summary + chart card --}}
             <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
                 <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">All-Time Total</p>
-                <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 2px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">${{ number_format($total, 2) }}</p>
+                <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 2px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">₹{{ number_format($total, 2) }}</p>
                 <p style="font-size:13px; color:#9ca3af; margin:0 0 20px;">across {{ $data->count() }} categories</p>
 
                 <div style="position:relative; height:192px; display:flex; align-items:center; justify-content:center;">
@@ -74,7 +74,7 @@
                                         </span>
                                     </td>
                                     <td style="padding:13px 12px; vertical-align:middle; text-align:right; font-size:15px; font-weight:700; color:#111827; white-space:nowrap; font-variant-numeric:tabular-nums;">
-                                        ${{ number_format((float)$row->total, 2) }}
+                                        ₹{{ number_format((float)$row->total, 2) }}
                                     </td>
                                     <td style="padding:13px 20px 13px 12px; vertical-align:middle; text-align:right;">
                                         <div style="display:flex; align-items:center; justify-content:flex-end; gap:8px;">
@@ -91,7 +91,7 @@
                 </div>
                 <div style="padding:12px 20px; border-top:1px solid #e5e7eb; display:flex; justify-content:space-between; align-items:center;">
                     <span style="font-size:13px; font-weight:600; color:#6b7280;">Grand Total</span>
-                    <span style="font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">${{ number_format($total, 2) }}</span>
+                    <span style="font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">₹{{ number_format($total, 2) }}</span>
                 </div>
             </div>
         </div>

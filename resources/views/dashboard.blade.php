@@ -87,7 +87,7 @@
                 @if ($days === 1) Today @elseif ($days <= 31) This Period @else Total Spend @endif
             </p>
             <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
-                ${{ number_format($monthTotal, 2) }}
+                ₹{{ number_format($monthTotal, 2) }}
             </p>
             <p style="font-size:13px; color:#9ca3af; margin:0;">
                 {{ $monthly->count() }} {{ Str::plural('category', $monthly->count()) }}
@@ -98,7 +98,7 @@
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">Daily Average</p>
             <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
-                ${{ number_format($average, 2) }}
+                ₹{{ number_format($average, 2) }}
             </p>
             <p style="font-size:13px; color:#9ca3af; margin:0;">
                 over {{ $days }} {{ Str::plural('day', $days) }}
@@ -109,7 +109,7 @@
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:20px 24px;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 6px;">All Time</p>
             <p style="font-size:30px; font-weight:700; color:#111827; margin:0 0 4px; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
-                ${{ number_format($lifetime->sum(fn($r) => (float)$r->total), 2) }}
+                ₹{{ number_format($lifetime->sum(fn($r) => (float)$r->total), 2) }}
             </p>
             <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $lifetime->count() }} {{ Str::plural('category', $lifetime->count()) }}</p>
         </div>
@@ -177,7 +177,7 @@
                                     <span style="width:8px; height:8px; border-radius:50%; flex-shrink:0; background:{{ $row->category?->color ?? '#71717a' }};"></span>
                                     {{ $row->category?->name ?? 'Unknown' }}
                                 </span>
-                                <span style="font-size:13px; font-weight:600; color:#374151; font-variant-numeric:tabular-nums;">${{ number_format((float)$row->total, 2) }}</span>
+                                <span style="font-size:13px; font-weight:600; color:#374151; font-variant-numeric:tabular-nums;">₹{{ number_format((float)$row->total, 2) }}</span>
                             </div>
                             <div style="height:5px; background:#f3f4f6; border-radius:99px; overflow:hidden;">
                                 <div style="height:100%; border-radius:99px; background:{{ $row->category?->color ?? '#71717a' }}; width:{{ $pct }}%; transition:width 500ms;"></div>
@@ -247,7 +247,7 @@
                                 </span>
                             </td>
                             <td style="padding:13px 20px 13px 12px; vertical-align:middle; text-align:right; white-space:nowrap;">
-                                <span style="font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">${{ number_format((float)$expense->amount, 2) }}</span>
+                                <span style="font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">₹{{ number_format((float)$expense->amount, 2) }}</span>
                             </td>
                         </tr>
                         @endforeach

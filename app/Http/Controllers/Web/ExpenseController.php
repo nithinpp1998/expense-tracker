@@ -49,7 +49,6 @@ final class ExpenseController extends Controller
     {
         $data = array_merge($request->validated(), [
             'user_id' => $request->user()->id,
-            'currency' => $request->validated('currency') ?? $request->user()->currency,
         ]);
 
         $this->expenses->create($data);
@@ -129,15 +128,14 @@ final class ExpenseController extends Controller
             // UTF-8 BOM so Excel opens the file correctly
             fwrite($handle, "\xEF\xBB\xBF");
 
-            fputcsv($handle, ['Date', 'Description', 'Category', 'Amount', 'Currency']);
+            fputcsv($handle, ['Date', 'Description', 'Category', 'Amount']);
 
             foreach ($expenses as $expense) {
                 fputcsv($handle, [
                     $expense->occurred_at->format('Y-m-d'),
                     $expense->description,
                     $expense->category?->name ?? '',
-                    number_format((float) $expense->amount, 2, '.', ''),
-                    $expense->currency,
+                    '₹' . number_format((float) $expense->amount, 2, '.', ''),
                 ]);
             }
 

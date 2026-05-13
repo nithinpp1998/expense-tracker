@@ -14,7 +14,6 @@ final class ExpenseResource extends JsonResource
         return [
             'id' => $this->id,
             'amount' => (float) $this->amount,
-            'currency' => $this->currency,
             'description' => $this->description,
             'occurred_at' => $this->occurred_at->toIso8601String(),
             'category' => new CategoryResource($this->whenLoaded('category')),

@@ -172,7 +172,7 @@
                         {{-- Amount --}}
                         <td style="padding:13px 12px; vertical-align:middle; text-align:right; white-space:nowrap;">
                             <span style="font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">
-                                ${{ number_format((float)$expense->amount, 2) }}
+                                ₹{{ number_format((float)$expense->amount, 2) }}
                             </span>
                         </td>
 

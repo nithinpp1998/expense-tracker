@@ -39,14 +39,14 @@
 
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:28px 24px; text-align:center;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 10px;">Daily Average</p>
-            <p style="font-size:36px; font-weight:700; color:#111827; margin:0 0 6px; letter-spacing:-0.03em; font-variant-numeric:tabular-nums;">${{ number_format($average, 2) }}</p>
+            <p style="font-size:36px; font-weight:700; color:#111827; margin:0 0 6px; letter-spacing:-0.03em; font-variant-numeric:tabular-nums;">₹{{ number_format($average, 2) }}</p>
             <p style="font-size:13px; color:#9ca3af; margin:0;">per day in {{ \Carbon\Carbon::create($year, $month)->format('F Y') }}</p>
         </div>
 
         <div style="background:#ffffff; border:1px solid #e5e7eb; border-radius:12px; padding:28px 24px; text-align:center;">
             <p style="font-size:11px; font-weight:600; color:#6b7280; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 10px;">Monthly Total</p>
-            <p style="font-size:36px; font-weight:700; color:#111827; margin:0 0 6px; letter-spacing:-0.03em; font-variant-numeric:tabular-nums;">${{ number_format($average * $days, 2) }}</p>
-            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $days }} days × ${{ number_format($average, 2) }}/day</p>
+            <p style="font-size:36px; font-weight:700; color:#111827; margin:0 0 6px; letter-spacing:-0.03em; font-variant-numeric:tabular-nums;">₹{{ number_format($average * $days, 2) }}</p>
+            <p style="font-size:13px; color:#9ca3af; margin:0;">{{ $days }} days × ₹{{ number_format($average, 2) }}/day</p>
         </div>
     </div>
 
@@ -55,7 +55,7 @@
         <p style="font-size:13px; color:#6b7280; line-height:1.6; margin:0;">
             In <strong style="color:#111827;">{{ \Carbon\Carbon::create($year, $month)->format('F Y') }}</strong>,
             your average daily spending was
-            <strong style="color:#111827;">${{ number_format($average, 2) }}</strong>.
+            <strong style="color:#111827;">₹{{ number_format($average, 2) }}</strong>.
             This is the total monthly spend divided by the number of days in the month ({{ $days }} days).
         </p>
         @if ($average === 0.0)

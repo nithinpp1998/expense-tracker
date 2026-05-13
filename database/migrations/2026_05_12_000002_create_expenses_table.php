@@ -15,7 +15,6 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
             $table->foreignId('category_id')->constrained()->restrictOnDelete();
             $table->decimal('amount', 12, 2);
-            $table->char('currency', 3)->default('USD');
             $table->string('description', 500);
             $table->timestamp('occurred_at');
             $table->timestamps();

@@ -17,7 +17,6 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->string('timezone', 64)->default('UTC');
-            $table->char('currency', 3)->default('USD');
             $table->rememberToken();
             $table->timestamps();
         });

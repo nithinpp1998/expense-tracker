@@ -54,7 +54,6 @@ it('creates an expense', function () {
         'user_id' => $user->id,
         'category_id' => $cat->id,
         'amount' => 99.99,
-        'currency' => 'USD',
         'description' => 'Test expense',
         'occurred_at' => now(),
     ]);

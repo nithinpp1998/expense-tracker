@@ -19,7 +19,6 @@ final class Expense extends Model
         'user_id',
         'category_id',
         'amount',
-        'currency',
         'description',
         'occurred_at',
     ];

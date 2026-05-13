@@ -20,7 +20,6 @@ final class UpdateExpenseRequest extends FormRequest
             'description' => ['sometimes', 'string', 'max:'.config('constants.expense.description_max_length')],
             'category_id' => ['sometimes', 'integer', 'exists:categories,id'],
             'occurred_at' => ['sometimes', 'date', 'before_or_equal:now'],
-            'currency'    => ['sometimes', 'string', 'size:'.config('constants.currency.code_length')],
         ];
     }
 }

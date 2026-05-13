@@ -2,7 +2,7 @@
     <x-slot name="title">Edit Expense</x-slot>
     <x-slot name="subtitle">Update expense details</x-slot>
 
-    <div class="max-w-lg">
+    <div class="max-w-xl mx-auto">
         <div class="card">
             <div class="px-6 py-5 border-b border-border">
                 <h2 class="font-semibold text-foreground" style="font-size:15px;">Expense Details</h2>
@@ -23,7 +23,7 @@
                     <div class="space-y-1.5">
                         <label for="amount" class="font-medium text-zinc-700" style="font-size:13px;">Amount</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm pointer-events-none">$</span>
+                            <span class="absolute inset-y-0 left-3 flex items-center text-muted-foreground text-sm pointer-events-none">₹</span>
                             <input id="amount" type="number" name="amount"
                                    value="{{ old('amount', $expense->amount) }}" required
                                    step="0.01" min="0.01" max="99999999.99"

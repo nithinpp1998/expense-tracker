@@ -38,7 +38,6 @@ final class ExpenseController extends Controller
     {
         $data = array_merge($request->validated(), [
             'user_id' => $request->user()->id,
-            'currency' => $request->validated('currency') ?? $request->user()->currency,
         ]);
 
         $expense = $this->expenses->create($data);

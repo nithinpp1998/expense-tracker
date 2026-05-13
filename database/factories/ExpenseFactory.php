@@ -22,7 +22,6 @@ final class ExpenseFactory extends Factory
             'user_id' => User::factory(),
             'category_id' => Category::factory(),
             'amount' => $this->faker->randomFloat(2, 0.01, 5000.00),
-            'currency' => 'USD',
             'description' => $this->faker->sentence(4),
             'occurred_at' => $this->faker->dateTimeBetween('-90 days', 'now'),
         ];

@@ -46,7 +46,7 @@
                 {{ \Carbon\Carbon::create($prevYear, $prevMonth)->format('F Y') }}
             </p>
             <p style="font-size:28px; font-weight:700; color:#111827; margin:0; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
-                ${{ number_format($lastMonthTotal, 2) }}
+                ₹{{ number_format($lastMonthTotal, 2) }}
             </p>
         </div>
 
@@ -56,7 +56,7 @@
                 {{ \Carbon\Carbon::create($year, $month)->format('F Y') }}
             </p>
             <p style="font-size:28px; font-weight:700; color:#111827; margin:0; letter-spacing:-0.02em; font-variant-numeric:tabular-nums;">
-                ${{ number_format($thisMonthTotal, 2) }}
+                ₹{{ number_format($thisMonthTotal, 2) }}
             </p>
         </div>
 
@@ -124,7 +124,7 @@
                             <th style="text-align:right; padding:10px 12px; font-size:12px; font-weight:600; color:#6b7280; letter-spacing:0.02em;">
                                 {{ \Carbon\Carbon::create($year, $month)->format('M Y') }}
                             </th>
-                            <th style="text-align:right; padding:10px 12px; font-size:12px; font-weight:600; color:#6b7280; letter-spacing:0.02em;">Change ($)</th>
+                            <th style="text-align:right; padding:10px 12px; font-size:12px; font-weight:600; color:#6b7280; letter-spacing:0.02em;">Change</th>
                             <th style="text-align:right; padding:10px 20px 10px 12px; font-size:12px; font-weight:600; color:#6b7280; letter-spacing:0.02em;">Change (%)</th>
                         </tr>
                     </thead>
@@ -151,19 +151,19 @@
 
                                 {{-- Last month --}}
                                 <td style="padding:13px 12px; text-align:right; vertical-align:middle; font-size:14px; font-weight:500; color:{{ $row->last_month > 0 ? '#374151' : '#d1d5db' }}; font-variant-numeric:tabular-nums; white-space:nowrap;">
-                                    {{ $row->last_month > 0 ? '$'.number_format($row->last_month, 2) : '—' }}
+                                    {{ $row->last_month > 0 ? '₹'.number_format($row->last_month, 2) : '—' }}
                                 </td>
 
                                 {{-- This month --}}
                                 <td style="padding:13px 12px; text-align:right; vertical-align:middle; font-size:15px; font-weight:700; color:{{ $row->this_month > 0 ? '#111827' : '#d1d5db' }}; font-variant-numeric:tabular-nums; white-space:nowrap;">
-                                    {{ $row->this_month > 0 ? '$'.number_format($row->this_month, 2) : '—' }}
+                                    {{ $row->this_month > 0 ? '₹'.number_format($row->this_month, 2) : '—' }}
                                 </td>
 
                                 {{-- Change $ --}}
                                 <td style="padding:13px 12px; text-align:right; vertical-align:middle; white-space:nowrap;">
                                     @if ($row->last_month > 0 || $row->this_month > 0)
                                         <span style="font-size:13px; font-weight:500; color:{{ $diff > 0 ? '#dc2626' : ($diff < 0 ? '#16a34a' : '#6b7280') }}; font-variant-numeric:tabular-nums;">
-                                            {{ $diff >= 0 ? '+' : '' }}${{ number_format(abs($diff), 2) }}
+                                            {{ $diff >= 0 ? '+₹' : '-₹' }}{{ number_format(abs($diff), 2) }}
                                         </span>
                                     @else
                                         <span style="color:#d1d5db;">—</span>
@@ -197,11 +197,11 @@
                     <tfoot>
                         <tr style="background:#f9fafb; border-top:2px solid #e5e7eb;">
                             <td style="padding:12px 12px 12px 20px; font-size:13px; font-weight:600; color:#374151;">Total</td>
-                            <td style="padding:12px; text-align:right; font-size:14px; font-weight:600; color:#374151; font-variant-numeric:tabular-nums;">${{ number_format($lastMonthTotal, 2) }}</td>
-                            <td style="padding:12px; text-align:right; font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">${{ number_format($thisMonthTotal, 2) }}</td>
+                            <td style="padding:12px; text-align:right; font-size:14px; font-weight:600; color:#374151; font-variant-numeric:tabular-nums;">₹{{ number_format($lastMonthTotal, 2) }}</td>
+                            <td style="padding:12px; text-align:right; font-size:15px; font-weight:700; color:#111827; font-variant-numeric:tabular-nums;">₹{{ number_format($thisMonthTotal, 2) }}</td>
                             <td style="padding:12px; text-align:right; font-size:13px; font-weight:600; color:{{ ($thisMonthTotal - $lastMonthTotal) > 0 ? '#dc2626' : (($thisMonthTotal - $lastMonthTotal) < 0 ? '#16a34a' : '#6b7280') }}; font-variant-numeric:tabular-nums;">
                                 @php $totalDiff = $thisMonthTotal - $lastMonthTotal; @endphp
-                                {{ $totalDiff >= 0 ? '+' : '' }}${{ number_format(abs($totalDiff), 2) }}
+                                {{ $totalDiff >= 0 ? '+₹' : '-₹' }}{{ number_format(abs($totalDiff), 2) }}
                             </td>
                             <td style="padding:12px 20px 12px 12px; text-align:right;">
                                 @if ($overallChange !== null)
